@@ -11,12 +11,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Show repo files
+        run: ls -la
+
       - name: Unpack project.zip
         run: |
           if [ -f project.zip ]; then
             unzip -o project.zip -d .
+          else
+            echo "project.zip NOT FOUND"
           fi
+          echo "---- after unzip ----"
           ls -la
+          ls -la app || echo "app folder NOT FOUND"
 
       - uses: actions/setup-java@v4
         with:
@@ -30,7 +37,11 @@ jobs:
       - name: Build debug APK
         run: gradle assembleDebug --no-daemon --stacktrace
 
+      - name: Find APK
+        run: find . -name "*.apk"
+
       - uses: actions/upload-artifact@v4
         with:
           name: DhakaBattleZone-APK
-          path: app/build/outputs/apk/debug/*.apk
+          path: '**/*.apk'
+          if-no-files-found: error
